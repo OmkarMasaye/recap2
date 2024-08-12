@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+    <form id="myform" action="/send" method="POST">
+        <h2>ReCaptcha V2 Checkbox</h2>
+        <input type="text" id="name" name="name" placeholder="Enter your Name" />
+        <div class="g-recaptcha" data-sitekey="6Ld2KCIqAAAAANVzjGUsK0bv28nzgNXuoWxxHW_3"></div>
+        <br/>
+        <button type="submit" id="send_button">Send</button>
+        <div id="result"></div>
+    </form>
+    <script>
+        function showResult(text) {
+            document.querySelector('#result').innerHTML = text;
+        }
+    
+        document.getElementById('myform').addEventListener('submit', async function(event) {
+            event.preventDefault();
+    
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (recaptchaResponse.length === 0) {
+                alert('Please complete the reCAPTCHA');
+                return; 
+            }
+    
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+             console.log(data)
+    
+            try {
+                const response = await fetch('http://localhost:5000/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+    
+                const text = await response.text();
+                showResult(text);
+            } catch (error) {
+                console.error('Error:', error);
+                showResult('An error occurred while submitting the form.');
+            }
+        });
+    </script>
+    
+
+</body>
+</html>
